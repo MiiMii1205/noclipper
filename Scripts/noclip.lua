@@ -108,7 +108,7 @@ function MoveInNoClip()
 
     local velocity = LerpVector3(previousVelocity, (((right * input.x * speed) + (up * -input.z * speed) + (forward * -input.y * speed))), Timestep() * breakSpeed);
     c = c + velocity
-    SetEntityCoords(target, c.x, c .y, c.z-1, true, true, true, false)
+    SetEntityCoords(target, c.x, c .y, c.z - 1, true, true, true, false)
     previousVelocity = velocity
 
 end
@@ -118,38 +118,35 @@ AddEventHandler('playerSpawned', function()
 
     playerPed = PlayerPedId()
     playerId = PlayerId()
+    target = playerPed;
 
 end)
 
-if ENABLE_TOGGLE_NO_CLIP then
+Citizen.CreateThread(function()
 
-    Citizen.CreateThread(function()
+    print(('NoCliper v%s initialized'):format(GetResourceMetadata(GetCurrentResourceName(), 'version', 0)))
 
-        print(('NoCliper v%s initialized'):format(GetResourceMetadata(GetCurrentResourceName(), 'version', 0)))
+    while true do
+        Citizen.Wait(0)
 
-        while true do
-            Citizen.Wait(0)
+        if ENABLE_TOGGLE_NO_CLIP and (IsControlAlwaysJustPressed(1, VEHICLE_NEXT_RADIO)) then
 
-            if (IsControlAlwaysJustPressed(1, VEHICLE_NEXT_RADIO)) then
-
-                ToggleNoClipMode()
-
-            end
-
-            if (isNoClipping) then
-
-                -- `(a and b) or c`, c'est l'équivalent de `a ? b : c` --
-
-                input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
-                speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
-
-                MoveInNoClip();
-
-            end
+            ToggleNoClipMode()
 
         end
 
-    end)
+        if (isNoClipping) then
 
-end
+            -- `(a and b) or c`, c'est l'équivalent de `a ? b : c` --
+
+            input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
+            speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
+
+            MoveInNoClip();
+
+        end
+
+    end
+
+end)
 
