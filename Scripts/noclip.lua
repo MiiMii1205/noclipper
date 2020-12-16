@@ -10,7 +10,7 @@ CHANGE_SPEED_KEY = 21
 MOVE_LEFT_RIGHT = 30
 MOVE_UP_DOWN = 31
 VEHICLE_NEXT_RADIO = 81
-NO_CLIP_NORMAL_SPEED = 1.8
+NO_CLIP_NORMAL_SPEED = 0.5
 NO_CLIP_FAST_SPEED = 2.5
 ENABLE_TOGGLE_NO_CLIP = true
 
@@ -108,7 +108,7 @@ function MoveInNoClip()
 
     local velocity = LerpVector3(previousVelocity, (((right * input.x * speed) + (up * -input.z * speed) + (forward * -input.y * speed))), Timestep() * breakSpeed);
     c = c + velocity
-    SetEntityCoordsNoOffset(target, c.x, c .y, c.z, true, true, true)
+    SetEntityCoords(target, c.x, c .y, c.z-1, true, true, true, false)
     previousVelocity = velocity
 
 end
