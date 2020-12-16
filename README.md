@@ -16,6 +16,8 @@ The controls are intuitive, and works just like your typical GTA controls.
 | <kbd>WASD</kbd> / Left Stick          |  Move / Strafe            |
 | Mouse / Right Stick                   |  Turn                     |
 | <kbd>Shift-r</kbd> / `A`              |  Go faster (Hold)         |
+| <kbd>Q</kbd>                          |  Move Up                  |
+| <kbd>E</kbd>                          |  Move Down                |
 
 ## Exports ##
 
