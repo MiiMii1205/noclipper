@@ -1,6 +1,6 @@
 # No Clipper # 
 
-A pleasant, simple and optimized NoClip script for [FiveM](https://fivem.net).
+A pleasant, simple and fast NoClip script for [FiveM](https://fivem.net).
 
 ## Setup ##
 
