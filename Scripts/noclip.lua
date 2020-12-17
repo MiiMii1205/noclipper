@@ -124,7 +124,7 @@ end)
 
 Citizen.CreateThread(function()
 
-    print(('NoCliper v%s initialized'):format(GetResourceMetadata(GetCurrentResourceName(), 'version', 0)))
+    print(('%s v%s initialized'):format(GetCurrentResourceName(), GetResourceMetadata(GetCurrentResourceName(), 'version', 0)))
 
     while true do
         Citizen.Wait(0)
