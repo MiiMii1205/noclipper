@@ -39,4 +39,4 @@ The controls are intuitive, and works just like your typical GTA controls.
 
 The resource also exports a `ToggleNoClipMode` function that can be called to toggle no-clip from another resource.
 
-[5m]: (https://fivem.net) "FiveM"
+[5m]: https://fivem.net "FiveM"
