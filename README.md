@@ -1,10 +1,10 @@
 # No Clipper # 
 
-A pleasant, simple and fast no-clip script for [FiveM](https://fivem.net).
+A pleasant, simple and fast no-clip script for [FiveM][5m].
 
 ## Setup ##
 
-Just clone this repo to your ressource folder of your [FiveM](https://fivem.net) server. You might also need to edit your `server.cfg` to auto-load the resource.
+Just clone this repo to your ressource folder of your [FiveM][5m] server. You might also need to edit your `server.cfg` to auto-load the resource.
 
 ### Permissions ###
 
@@ -37,4 +37,6 @@ The controls are intuitive, and works just like your typical GTA controls.
 
 ## Exports ##
 
-The resource also exports a `ToggleNoClipMode` function that can be called to toggle NoClip from another resource.
+The resource also exports a `ToggleNoClipMode` function that can be called to toggle no-clip from another resource.
+
+[5m]: (https://fivem.net) "FiveM"
