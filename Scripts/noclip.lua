@@ -13,7 +13,10 @@ NOCLIP_TOGGLE_KEY = 81
 NO_CLIP_NORMAL_SPEED = 0.5
 NO_CLIP_FAST_SPEED = 2.5
 ENABLE_TOGGLE_NO_CLIP = true
+ENABLE_NO_CLIP_SOUND = true
+
 STARTUP_STRING = ('%s v%s initialized'):format(GetCurrentResourceName(), GetResourceMetadata(GetCurrentResourceName(), 'version', 0))
+STARTUP_HTML_STRING = (':business_suit_levitating: %s <small>v%s</small> initialized'):format(GetCurrentResourceName(), GetResourceMetadata(GetCurrentResourceName(), 'version', 0))
 
 -- Variables --
 local isNoClipping = false
@@ -45,6 +48,27 @@ function SetNoClip(val)
     if (isNoClipping ~= val) then
 
         isNoClipping = val;
+
+        if ENABLE_NO_CLIP_SOUND then
+
+            if isNoClipping then
+
+                --[[
+
+                AUDIO::PLAY_SOUND_FRONTEND(-1, "SELECT", "HUD_LIQUOR_STORE_SOUNDSET", 1);
+                AUDIO::PLAY_SOUND_FRONTEND(-1, "CANCEL", "HUD_LIQUOR_STORE_SOUNDSET", 1);
+                ]]--
+
+                PlaySoundFromEntity(-1, "SELECT", playerPed, "HUD_LIQUOR_STORE_SOUNDSET", 0, 0)
+
+            else
+
+                PlaySoundFromEntity(-1, "CANCEL", playerPed, "HUD_LIQUOR_STORE_SOUNDSET", 0, 0)
+            end
+
+        end
+
+        TriggerEvent('msgprinter:addMessage', ((isNoClipping and ":airplane: No-clip enabled") or ":rock: No-clip disabled"), GetCurrentResourceName());
 
         SetUserRadioControlEnabled(not isNoClipping)
         FreezeEntityPosition(playerPed, isNoClipping)
@@ -122,6 +146,7 @@ end)
 Citizen.CreateThread(function()
 
     print(STARTUP_STRING)
+    TriggerEvent('msgprinter:addMessage', STARTUP_HTML_STRING, GetCurrentResourceName());
 
     while ENABLE_TOGGLE_NO_CLIP do
         Citizen.Wait(0)
