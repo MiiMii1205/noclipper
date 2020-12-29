@@ -1,9 +1,9 @@
 --[[
-  * Écrit par Oracle
+  * Created by MiiMii1205
   * license MIT
 --]]
 
--- Constantes --
+-- Constants --
 MOVE_UP_KEY = 44
 MOVE_DOWN_KEY = 46
 CHANGE_SPEED_KEY = 21
@@ -52,17 +52,8 @@ function SetNoClip(val)
         if ENABLE_NO_CLIP_SOUND then
 
             if isNoClipping then
-
-                --[[
-
-                AUDIO::PLAY_SOUND_FRONTEND(-1, "SELECT", "HUD_LIQUOR_STORE_SOUNDSET", 1);
-                AUDIO::PLAY_SOUND_FRONTEND(-1, "CANCEL", "HUD_LIQUOR_STORE_SOUNDSET", 1);
-                ]]--
-
                 PlaySoundFromEntity(-1, "SELECT", playerPed, "HUD_LIQUOR_STORE_SOUNDSET", 0, 0)
-
             else
-
                 PlaySoundFromEntity(-1, "CANCEL", playerPed, "HUD_LIQUOR_STORE_SOUNDSET", 0, 0)
             end
 
@@ -87,7 +78,6 @@ function SetNoClip(val)
                     Citizen.Wait(0);
 
                     -- `(a and b) or c`, is basically `a ? b : c` --
-
                     input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
                     speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
 
@@ -96,7 +86,6 @@ function SetNoClip(val)
                 end
 
                 -- We're done with the while so we aren't in no-clip mode anymore --
-
                 -- Wait until the player starts falling or is completely stopped --
                 while (IsPedStopped(playerPed) or not IsPedFalling(playerPed)) and not isNoClipping do
                     Citizen.Wait(0);
@@ -127,15 +116,12 @@ function MoveInNoClip()
 
     SetEntityRotation(playerPed, GetGameplayCamRot(0), 0, true)
     local forward, right, up, c = GetEntityMatrix(playerPed)
-    -- On utilise le système de coordonné du ped pour le faire bouger --
-
     previousVelocity = Lerp(previousVelocity, (((right * input.x * speed) + (up * -input.z * speed) + (forward * -input.y * speed))), Timestep() * breakSpeed);
     c = c + previousVelocity
     SetEntityCoords(playerPed, c - offset, true, true, true, false)
 
 end
 
--- On rechange le playerPed quand le joueur spawn (ou respawn dans notre cas) --
 AddEventHandler('playerSpawned', function()
 
     playerPed = PlayerPedId()
