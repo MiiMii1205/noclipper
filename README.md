@@ -4,15 +4,23 @@ A pleasant, simple and fast no-clip script for [FiveM](https://fivem.net).
 
 ## Setup ##
 
-Just clone this repo to your ressource folder of your [FiveM](https://fivem.net) server. You might also need to edit your `server.cfg` to auto load the resource.
+Just clone this repo to your ressource folder of your [FiveM](https://fivem.net) server. You might also need to edit your `server.cfg` to auto-load the resource.
 
-Remember that this resource doesn't do any permission management. By default, it allows **EVERY** player to no-clip.
+### Permissions ###
 
-To change this, you can set the `ENABLE_TOGGLE_NO_CLIP` (line 15) value in the `Scripts/noclipt.lua` file.
+Remember that No Clipper **doesn't** do any permission management. By default, it allows **EVERY** player to no-clip.
 
-You can then use the exported `ToggleNoClipMode` in any other ressources, granted that your server loads `No Cipper` first.
+To prevent this, you can set the `ENABLE_TOGGLE_NO_CLIP` value in the `Scripts/noclipt.lua` file to `false`.
 
-By default, `No Clipper` plays sounds when players toggles the no-clip. To mute it, just set the value of `ENABLE_NO_CLIP_SOUND` (line 16) to `false`
+Then, you can use the exported `ToggleNoClipMode` function to your liking, granted that your server loads No Clipper first.
+
+This will effectively makes No Clipper act more like a library than a standalone ressource.
+
+### Sounds ###
+
+No Clipper plays, by default, different sounds while toggling no-clip mode.
+
+To mute No Clipper, just set the `ENABLE_NO_CLIP_SOUND`  value to `false`.
 
 ## Controls ##
 
