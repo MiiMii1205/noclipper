@@ -67,6 +67,8 @@ function SetNoClip(val)
 
         if (isNoClipping) then
 
+            SetEntityAlpha(playerPed, 51, false)
+
             -- Start a No CLip thread
             Citizen.CreateThread(function()
 
@@ -106,6 +108,8 @@ function SetNoClip(val)
 
             end)
 
+        else
+            ResetEntityAlpha(playerPed)
         end
 
     end
