@@ -133,6 +133,13 @@ AddEventHandler('playerSpawned', function()
 
 end)
 
+AddEventHandler('RCC:newPed', function()
+
+    playerPed = PlayerPedId()
+    playerId = PlayerId()
+
+end)
+
 Citizen.CreateThread(function()
 
     print(STARTUP_STRING)
