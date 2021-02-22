@@ -5,18 +5,20 @@
 
 -- Constants --
 MOVE_UP_KEY = 44
-MOVE_DOWN_KEY = 46
+MOVE_DOWN_KEY = 20
 CHANGE_SPEED_KEY = 21
 MOVE_LEFT_RIGHT = 30
 MOVE_UP_DOWN = 31
-NOCLIP_TOGGLE_KEY = 81
+NOCLIP_TOGGLE_KEY = 289
 NO_CLIP_NORMAL_SPEED = 0.5
 NO_CLIP_FAST_SPEED = 2.5
 ENABLE_TOGGLE_NO_CLIP = true
 ENABLE_NO_CLIP_SOUND = true
 
-STARTUP_STRING = ('%s v%s initialized'):format(GetCurrentResourceName(), GetResourceMetadata(GetCurrentResourceName(), 'version', 0))
-STARTUP_HTML_STRING = (':business_suit_levitating: %s <small>v%s</small> initialized'):format(GetCurrentResourceName(), GetResourceMetadata(GetCurrentResourceName(), 'version', 0))
+local RESSOURCE_NAME = GetCurrentResourceName();
+
+STARTUP_STRING = ('%s v%s initialized'):format(RESSOURCE_NAME, GetResourceMetadata(RESSOURCE_NAME, 'version', 0))
+STARTUP_HTML_STRING = (':business_suit_levitating: %s <small>v%s</small> initialized'):format(RESSOURCE_NAME, GetResourceMetadata(RESSOURCE_NAME, 'version', 0))
 
 -- Variables --
 local isNoClipping = false
@@ -28,7 +30,11 @@ local previousVelocity = vector3(0, 0, 0)
 local breakSpeed = 10.0;
 local offset = vector3(0, 0, 1);
 
-function ToggleNoClipMode() return SetNoClip(not isNoClipping) end
+local noClippingEntity = playerPed;
+
+function ToggleNoClipMode()
+    return SetNoClip(not isNoClipping)
+end
 
 function IsControlAlwaysPressed(inputGroup, control) return IsControlPressed(inputGroup, control) or IsDisabledControlPressed(inputGroup, control) end
 
@@ -36,16 +42,18 @@ function IsControlAlwaysJustPressed(inputGroup, control) return IsControlJustPre
 
 function Lerp (a, b, t) return a + (b - a) * t end
 
-function SetInvincible(val)
+function SetInvincible(val, id)
 
-    SetEntityInvincible(playerPed, val)
-    return SetPlayerInvincible(playerPed, val)
+    SetEntityInvincible(id, val)
+    return SetPlayerInvincible(id, val)
 
 end
 
 function SetNoClip(val)
 
     if (isNoClipping ~= val) then
+        noClippingEntity = (IsPedInAnyVehicle(playerPed, false) and GetVehiclePedIsIn(playerPed, false)) or playerPed;
+        local isVeh = IsEntityAVehicle(noClippingEntity);
 
         isNoClipping = val;
 
@@ -60,69 +68,151 @@ function SetNoClip(val)
         end
 
         TriggerEvent('msgprinter:addMessage', ((isNoClipping and ":airplane: No-clip enabled") or ":rock: No-clip disabled"), GetCurrentResourceName());
-
-        SetUserRadioControlEnabled(not isNoClipping)
-        FreezeEntityPosition(playerPed, isNoClipping)
-        ClearPedTasksImmediately(playerPed)
+        SetUserRadioControlEnabled(not isNoClipping);
 
         if (isNoClipping) then
 
-            SetEntityAlpha(playerPed, 51, false)
+            TriggerEvent('instructor:add-instruction', { MOVE_LEFT_RIGHT, MOVE_UP_DOWN }, "move", RESSOURCE_NAME);
+            TriggerEvent('instructor:add-instruction', { MOVE_DOWN_KEY, MOVE_UP_KEY }, "move up/down", RESSOURCE_NAME);
+            TriggerEvent('instructor:add-instruction', { 1, 2 }, "Turn", RESSOURCE_NAME);
+            TriggerEvent('instructor:add-instruction', CHANGE_SPEED_KEY, "(hold) fast mode", RESSOURCE_NAME);
+            TriggerEvent('instructor:add-instruction', NOCLIP_TOGGLE_KEY, "Toggle No-clip", RESSOURCE_NAME);
+            SetEntityAlpha(noClippingEntity, 51, 0)
 
             -- Start a No CLip thread
             Citizen.CreateThread(function()
 
+                local clipped = noClippingEntity
+                local pPed = playerPed;
+                local isClippedVeh = isVeh;
                 -- We start with no-clip mode because of the above if --
-                SetInvincible(true);
+                SetInvincible(true, clipped);
 
-                while isNoClipping do
+                FreezeEntityPosition(clipped, true);
+                SetEntityCollision(clipped, false, false);
 
-                    Citizen.Wait(0);
+                SetEntityVisible(clipped, false, false);
+                SetLocalPlayerVisibleLocally(true);
+                SetEntityAlpha(clipped, 51, false)
 
-                    -- `(a and b) or c`, is basically `a ? b : c` --
-                    input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
-                    speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
+                SetEveryoneIgnorePlayer(pPed, true);
+                SetPoliceIgnorePlayer(pPed, true);
 
-                    MoveInNoClip();
+                if not isClippedVeh then
+                    ClearPedTasksImmediately(pPed)
 
-                end
+                    while isNoClipping do
+                        Citizen.Wait(0);
+                        -- `(a and b) or c`, is basically `a ? b : c` --
+                        input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
+                        speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
 
-                -- We're done with the while so we aren't in no-clip mode anymore --
-                -- Wait until the player starts falling or is completely stopped --
-                while (IsPedStopped(playerPed) or not IsPedFalling(playerPed)) and not isNoClipping do
-                    Citizen.Wait(0);
-                end
+                        MoveInNoClip();
 
-                while not isNoClipping do
+                    end
 
-                    Citizen.Wait(0);
 
-                    if IsPedStopped(playerPed) and not IsPedFalling(playerPed) then
+                else
 
-                        -- We hit land. We can safely remove the invincibility --
-                        return SetInvincible(false);
+                    while isNoClipping do
+
+                        Citizen.Wait(0);
+                        -- `(a and b) or c`, is basically `a ? b : c` --
+                        input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
+                        speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
+
+                        MoveCarInNoClip();
 
                     end
 
                 end
 
+                FreezeEntityPosition(clipped, false);
+                SetEntityCollision(clipped, true, true);
+
+                SetEntityVisible(clipped, true, false);
+                SetLocalPlayerVisibleLocally(true);
+                ResetEntityAlpha(clipped);
+
+                SetEveryoneIgnorePlayer(pPed, false);
+                SetPoliceIgnorePlayer(pPed, false);
+                ResetEntityAlpha(clipped);
+
+                -- We're done with the while so we aren't in no-clip mode anymore --
+                -- Wait until the player starts falling or is completely stopped --
+                if isClippedVeh then
+
+                    while (not IsVehicleOnAllWheels(clipped)) and not isNoClipping do
+                        Citizen.Wait(0);
+                    end
+
+                    while not isNoClipping do
+
+                        Citizen.Wait(0);
+
+                        if IsVehicleOnAllWheels(clipped) then
+
+                            -- We hit land. We can safely remove the invincibility --
+                            return SetInvincible(false, clipped);
+
+                        end
+
+                    end
+
+                else
+
+                    while (IsPedStopped(clipped) or not IsPedFalling(clipped)) and not isNoClipping do
+                        Citizen.Wait(0);
+                    end
+
+                    while not isNoClipping do
+
+                        Citizen.Wait(0);
+
+                        if IsPedStopped(clipped) and not IsPedFalling(clipped) then
+
+                            -- We hit land. We can safely remove the invincibility --
+                            return SetInvincible(false, clipped);
+
+                        end
+
+                    end
+
+                end
+
+
             end)
 
         else
-            ResetEntityAlpha(playerPed)
+            ResetEntityAlpha(noClippingEntity)
+            TriggerEvent('instructor:flush', RESSOURCE_NAME);
         end
 
     end
 
 end
 
+local RIGHT_VEC = vec(1, 0, 0)
+local FORWARD_VEC = vec(0, 1, 0)
+local UP_VEC = vec(0, 0, 1)
+
 function MoveInNoClip()
 
-    SetEntityRotation(playerPed, GetGameplayCamRot(0), 0, true)
-    local forward, right, up, c = GetEntityMatrix(playerPed)
+    SetEntityRotation(noClippingEntity, GetGameplayCamRot(0), 0, false)
+    local forward, right, up, c = GetEntityMatrix(noClippingEntity);
     previousVelocity = Lerp(previousVelocity, (((right * input.x * speed) + (up * -input.z * speed) + (forward * -input.y * speed))), Timestep() * breakSpeed);
     c = c + previousVelocity
-    SetEntityCoords(playerPed, c - offset, true, true, true, false)
+    SetEntityCoords(noClippingEntity, c - offset, true, true, true, false)
+
+end
+
+function MoveCarInNoClip()
+
+    SetEntityRotation(noClippingEntity, GetGameplayCamRot(0), 0, false)
+    local forward, right, up, c = GetEntityMatrix(noClippingEntity);
+    previousVelocity = Lerp(previousVelocity, (((right * input.x * speed) + (up * -input.z * speed) + (forward * -input.y * speed))), Timestep() * breakSpeed);
+    c = c + previousVelocity
+    SetEntityCoords(noClippingEntity, (c - offset) + (vec(0, 0, .3)), true, true, true, false)
 
 end
 
@@ -147,7 +237,7 @@ Citizen.CreateThread(function()
 
     while ENABLE_TOGGLE_NO_CLIP do
         Citizen.Wait(0)
-        if IsControlAlwaysJustPressed(1, NOCLIP_TOGGLE_KEY) then ToggleNoClipMode() end
+        if IsControlAlwaysJustPressed(0, NOCLIP_TOGGLE_KEY) then ToggleNoClipMode() end
     end
 
 end)
