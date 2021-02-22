@@ -4,8 +4,8 @@
 --]]
 
 -- Constants --
-MOVE_UP_KEY = 44
-MOVE_DOWN_KEY = 20
+MOVE_UP_KEY = 20
+MOVE_DOWN_KEY = 44
 CHANGE_SPEED_KEY = 21
 MOVE_LEFT_RIGHT = 30
 MOVE_UP_DOWN = 31
@@ -42,6 +42,10 @@ function IsControlAlwaysJustPressed(inputGroup, control) return IsControlJustPre
 
 function Lerp (a, b, t) return a + (b - a) * t end
 
+function IsPedDrivingVehicle(ped, veh)
+    return ped == GetPedInVehicleSeat(veh, -1);
+end
+
 function SetInvincible(val, id)
     SetEntityInvincible(id, val)
     return SetPlayerInvincible(id, val)
@@ -51,10 +55,13 @@ function SetNoClip(val)
 
     if (isNoClipping ~= val) then
 
-        if IsPedInAnyVehicle(playerPed, false) and IsPedDriving(playerPed) then
-            noClippingEntity = GetVehiclePedIsIn(playerPed, false)
-        else
-            noClippingEntity = playerPed
+        noClippingEntity = playerPed;
+
+        if IsPedInAnyVehicle(playerPed, false) then
+            local veh = GetVehiclePedIsIn(playerPed, false);
+            if IsPedDrivingVehicle(playerPed, veh) then
+                noClippingEntity = veh;
+            end
         end
 
         local isVeh = IsEntityAVehicle(noClippingEntity);
@@ -77,7 +84,7 @@ function SetNoClip(val)
         if (isNoClipping) then
 
             TriggerEvent('instructor:add-instruction', { MOVE_LEFT_RIGHT, MOVE_UP_DOWN }, "move", RESSOURCE_NAME);
-            TriggerEvent('instructor:add-instruction', { MOVE_DOWN_KEY, MOVE_UP_KEY }, "move up/down", RESSOURCE_NAME);
+            TriggerEvent('instructor:add-instruction', { MOVE_UP_KEY, MOVE_DOWN_KEY }, "move up/down", RESSOURCE_NAME);
             TriggerEvent('instructor:add-instruction', { 1, 2 }, "Turn", RESSOURCE_NAME);
             TriggerEvent('instructor:add-instruction', CHANGE_SPEED_KEY, "(hold) fast mode", RESSOURCE_NAME);
             TriggerEvent('instructor:add-instruction', NOCLIP_TOGGLE_KEY, "Toggle No-clip", RESSOURCE_NAME);
@@ -104,30 +111,15 @@ function SetNoClip(val)
 
                 if not isClippedVeh then
                     ClearPedTasksImmediately(pPed)
+                end
 
-                    while isNoClipping do
-                        Citizen.Wait(0);
-                        -- `(a and b) or c`, is basically `a ? b : c` --
-                        input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
-                        speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
+                while isNoClipping do
+                    Citizen.Wait(0);
+                    -- `(a and b) or c`, is basically `a ? b : c` --
+                    input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
+                    speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
 
-                        MoveInNoClip();
-
-                    end
-
-
-                else
-
-                    while isNoClipping do
-
-                        Citizen.Wait(0);
-                        -- `(a and b) or c`, is basically `a ? b : c` --
-                        input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
-                        speed = (IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED
-
-                        MoveCarInNoClip();
-
-                    end
+                    MoveInNoClip();
 
                 end
 
@@ -210,7 +202,7 @@ function MoveCarInNoClip()
 
     SetEntityRotation(noClippingEntity, GetGameplayCamRot(0), 0, false)
     local forward, right, up, c = GetEntityMatrix(noClippingEntity);
-    previousVelocity = Lerp(previousVelocity, (((right * input.x * speed) + (up * -input.z * speed) + (forward * -input.y * speed))), Timestep() * breakSpeed);
+    previousVelocity = Lerp(previousVelocity, (((right * input.x * speed) + (up * input.z * speed) + (forward * -input.y * speed))), Timestep() * breakSpeed);
     c = c + previousVelocity
     SetEntityCoords(noClippingEntity, (c - offset) + (vec(0, 0, .3)), true, true, true, false)
 
