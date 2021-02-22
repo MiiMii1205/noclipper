@@ -43,16 +43,20 @@ function IsControlAlwaysJustPressed(inputGroup, control) return IsControlJustPre
 function Lerp (a, b, t) return a + (b - a) * t end
 
 function SetInvincible(val, id)
-
     SetEntityInvincible(id, val)
     return SetPlayerInvincible(id, val)
-
 end
 
 function SetNoClip(val)
 
     if (isNoClipping ~= val) then
-        noClippingEntity = (IsPedInAnyVehicle(playerPed, false) and GetVehiclePedIsIn(playerPed, false)) or playerPed;
+
+        if IsPedInAnyVehicle(playerPed, false) and IsPedDriving(playerPed) then
+            noClippingEntity = GetVehiclePedIsIn(playerPed, false)
+        else
+            noClippingEntity = playerPed
+        end
+
         local isVeh = IsEntityAVehicle(noClippingEntity);
 
         isNoClipping = val;
@@ -191,10 +195,6 @@ function SetNoClip(val)
     end
 
 end
-
-local RIGHT_VEC = vec(1, 0, 0)
-local FORWARD_VEC = vec(0, 1, 0)
-local UP_VEC = vec(0, 0, 1)
 
 function MoveInNoClip()
 
