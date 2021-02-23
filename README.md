@@ -4,7 +4,8 @@ A pleasant, simple and fast no-clip script for [FiveM][5m].
 
 ## Setup ##
 
-Just clone this repo to your ressource folder of your [FiveM][5m] server. You might also need to edit your `server.cfg` to auto-load the resource.
+Just clone this repo to your ressource folder of your [FiveM][5m] server. You might also need to edit your `server.cfg` to
+auto-load the resource.
 
 ### Permissions ###
 

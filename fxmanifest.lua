@@ -1,6 +1,6 @@
 fx_version 'cerulean'
 
-game  'gta5'
+game 'gta5'
 
 author 'MiiMii1205'
 description 'A pleasant, simple and fast NoClip script for FiveM'
