@@ -176,7 +176,6 @@ function SetNoClip(val)
 
                 end
 
-
             end)
 
         else
@@ -222,6 +221,12 @@ AddEventHandler('RCC:newPed', function()
 
 end)
 
+AddEventHandler('onResourceStop', function(resourceName)
+    if resourceName == RESSOURCE_NAME then
+        SetNoClip(false);
+    end
+end)
+
 Citizen.CreateThread(function()
 
     print(STARTUP_STRING)
@@ -233,4 +238,3 @@ Citizen.CreateThread(function()
     end
 
 end)
-
