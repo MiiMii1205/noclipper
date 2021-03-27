@@ -15,6 +15,7 @@ NO_CLIP_FAST_SPEED = 2.5
 ENABLE_TOGGLE_NO_CLIP = true
 ENABLE_NO_CLIP_SOUND = true
 
+local eps = 0.01
 local RESSOURCE_NAME = GetCurrentResourceName();
 
 STARTUP_STRING = ('%s v%s initialized'):format(RESSOURCE_NAME, GetResourceMetadata(RESSOURCE_NAME, 'version', 0))
@@ -137,6 +138,8 @@ function SetNoClip(val)
                 SetPoliceIgnorePlayer(pPed, false);
                 ResetEntityAlpha(clipped);
 
+                Citizen.Wait(500);
+
                 -- We're done with the while so we aren't in no-clip mode anymore --
                 -- Wait until the player starts falling or is completely stopped --
                 if isClippedVeh then
@@ -160,8 +163,10 @@ function SetNoClip(val)
 
                 else
 
-                    while (IsPedStopped(clipped) or not IsPedFalling(clipped)) and not isNoClipping do
-                        Citizen.Wait(0);
+                    if (IsPedFalling(clipped) and math.abs(1 - GetEntityHeightAboveGround(clipped)) > eps) then
+                        while (IsPedStopped(clipped) or not IsPedFalling(clipped)) and not isNoClipping do
+                            Citizen.Wait(0);
+                        end
                     end
 
                     while not isNoClipping do
@@ -238,7 +243,7 @@ Citizen.CreateThread(function()
     if ENABLE_TOGGLE_NO_CLIP then
 
         RegisterCommand("noClip", function(source, args, rawCommand)
-            SetNoClip(args[1] == 1)
+            SetNoClip(tonumber(args[1]) == 1)
         end)
 
         RegisterCommand("+noClip", function(source, rawCommand)
