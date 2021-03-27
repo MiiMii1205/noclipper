@@ -36,6 +36,20 @@ The controls are intuitive, and works just like your typical GTA controls.
 | <kbd>Q</kbd>                          |  Move Up                  |
 | <kbd>E</kbd>                          |  Move Down                |
 
+To toggle no-clipping, you can either use the `ToggleNoClipMode` exported function or, if `ENABLE_TOGGLE_NO_CLIP` is set to `true`, use the <kbd>F2</kbd> key.
+
+## Commands ##
+
+With `ENABLE_TOGGLE_NO_CLIP` set to `true`, you also have access to many FiveM console commands:
+
+| Command           | Does                                                          |
+|-------------------|---------------------------------------------------------------|
+| `\noClip <0,1>`   | Enables/disables no-clipping based on the provided argument   |
+| `\+noClip`        | Enables no-clipping                                           |
+| `\-noClip`        | Disables no-clipping                                          |
+| `\toggleNoClip`   | Toggles on or off no-clipping                                 |
+
+
 ## Exports ##
 
 The resource also exports a `ToggleNoClipMode` function that can be called to toggle no-clip from another resource.

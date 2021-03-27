@@ -99,22 +99,23 @@ function SetNoClip(val)
                 -- We start with no-clip mode because of the above if --
                 SetInvincible(true, clipped);
 
-                FreezeEntityPosition(clipped, true);
-                SetEntityCollision(clipped, false, false);
-
-                SetEntityVisible(clipped, false, false);
-                SetLocalPlayerVisibleLocally(true);
-                SetEntityAlpha(clipped, 51, false)
-
-                SetEveryoneIgnorePlayer(pPed, true);
-                SetPoliceIgnorePlayer(pPed, true);
-
                 if not isClippedVeh then
                     ClearPedTasksImmediately(pPed)
                 end
 
                 while isNoClipping do
                     Citizen.Wait(0);
+
+                    FreezeEntityPosition(clipped, true);
+                    SetEntityCollision(clipped, false, false);
+
+                    SetEntityVisible(clipped, false, false);
+                    SetLocalPlayerVisibleLocally(true);
+                    SetEntityAlpha(clipped, 51, false)
+
+                    SetEveryoneIgnorePlayer(pPed, true);
+                    SetPoliceIgnorePlayer(pPed, true);
+
                     -- `(a and b) or c`, is basically `a ? b : c` --
                     input = vector3(GetControlNormal(0, MOVE_LEFT_RIGHT), GetControlNormal(0, MOVE_UP_DOWN), (IsControlAlwaysPressed(1, MOVE_UP_KEY) and 1) or ((IsControlAlwaysPressed(1, MOVE_DOWN_KEY) and -1) or 0))
                     speed = ((IsControlAlwaysPressed(1, CHANGE_SPEED_KEY) and NO_CLIP_FAST_SPEED) or NO_CLIP_NORMAL_SPEED) * ((isClippedVeh and 2.75) or 1)
@@ -122,6 +123,8 @@ function SetNoClip(val)
                     MoveInNoClip();
 
                 end
+
+                Citizen.Wait(0);
 
                 FreezeEntityPosition(clipped, false);
                 SetEntityCollision(clipped, true, true);
@@ -165,7 +168,7 @@ function SetNoClip(val)
 
                         Citizen.Wait(0);
 
-                        if IsPedStopped(clipped) and not IsPedFalling(clipped) then
+                        if (not IsPedFalling(clipped)) and (not IsPedRagdoll(clipped)) then
 
                             -- We hit land. We can safely remove the invincibility --
                             return SetInvincible(false, clipped);
@@ -232,9 +235,24 @@ Citizen.CreateThread(function()
     print(STARTUP_STRING)
     TriggerEvent('msgprinter:addMessage', STARTUP_HTML_STRING, GetCurrentResourceName());
 
-    while ENABLE_TOGGLE_NO_CLIP do
-        Citizen.Wait(0)
-        if IsControlAlwaysJustPressed(0, NOCLIP_TOGGLE_KEY) then ToggleNoClipMode() end
+    if ENABLE_TOGGLE_NO_CLIP then
+
+        RegisterCommand("noClip", function(source, args, rawCommand)
+            SetNoClip(args[1] == 1)
+        end)
+
+        RegisterCommand("+noClip", function(source, rawCommand)
+            SetNoClip(true)
+        end)
+        RegisterCommand("-noClip", function(source, rawCommand)
+            SetNoClip(false)
+        end)
+
+        RegisterCommand("toggleNoClip", function(source, rawCommand)
+            ToggleNoClipMode()
+        end)
+
+        RegisterKeyMapping("toggleNoClip", "Toggles no-clipping", "keyboard", "F2");
     end
 
 end)
