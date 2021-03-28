@@ -232,6 +232,17 @@ end)
 AddEventHandler('onResourceStop', function(resourceName)
     if resourceName == RESSOURCE_NAME then
         SetNoClip(false);
+        FreezeEntityPosition(noClippingEntity, false);
+        SetEntityCollision(noClippingEntity, true, true);
+
+        SetEntityVisible(noClippingEntity, true, false);
+        SetLocalPlayerVisibleLocally(true);
+        ResetEntityAlpha(noClippingEntity);
+
+        SetEveryoneIgnorePlayer(playerPed, false);
+        SetPoliceIgnorePlayer(playerPed, false);
+        ResetEntityAlpha(noClippingEntity);
+        SetInvincible(false, noClippingEntity);
     end
 end)
 
